@@ -9,26 +9,26 @@ let requiredQuarters birthDate =
         (1972 - int birthDate) / 3 + 1 |> decimal
     172m - oneQuarterEvery3Years
 
-let cotisationsBase annualWage =
-    (min annualWage pass) * 0.1545m + annualWage * 0.023m, 0m
+let cotisationsBase annualSalary =
+    (min annualSalary pass) * 0.1545m + annualSalary * 0.023m, 0m
 
 // reference : https://www.service-public.fr/particuliers/vosdroits/F21552
 let calculateCurrentBasePension career =
-    let firstBest25YearsWage = career.InitialMonthWage + (career.RetiringAge - career.StartingAge - 25m) * (career.EndMonthWage - career.InitialMonthWage) / (career.RetiringAge - career.StartingAge)
-    let averageBest25YearsWage = (firstBest25YearsWage + career.EndMonthWage) / 2m
+    let firstBest25YearsSalary = career.InitialMonthSalary + (career.RetiringAge - career.StartingAge - 25m) * (career.EndMonthSalary - career.InitialMonthSalary) / (career.RetiringAge - career.StartingAge)
+    let averageBest25YearsSalary = (firstBest25YearsSalary + career.EndMonthSalary) / 2m
     let validatedQuarters = (career.RetiringAge - career.StartingAge) * 4m
     let requiredQuarters = requiredQuarters career.BirthYear
     let missingQuarters = requiredQuarters - validatedQuarters |> min 20m
     let pensionRate = 0.5m - 0.00625m * missingQuarters
-    let pension = (min (averageBest25YearsWage) (pass / 12m)) * pensionRate * validatedQuarters / requiredQuarters
+    let pension = (min (averageBest25YearsSalary) (pass / 12m)) * pensionRate * validatedQuarters / requiredQuarters
     let cotisations, _ = calculateWholeCareer cotisationsBase career
     { Cotisations = cotisations; MonthlyAmount = pension }
 
-let cotisationsAgircArrco annualWage =
-    let firstTrancheWage = min annualWage pass
-    let secondTrancheWage = max 0m (min annualWage (8m * pass) - pass)
-    firstTrancheWage * 0.0787m + secondTrancheWage * 0.2159m,
-        firstTrancheWage * 0.0215m + secondTrancheWage * 0.027m + (if annualWage > pass then firstTrancheWage + secondTrancheWage else 0m) * 0.0035m
+let cotisationsAgircArrco annualSalary =
+    let firstTrancheSalary = min annualSalary pass
+    let secondTrancheSalary = max 0m (min annualSalary (8m * pass) - pass)
+    firstTrancheSalary * 0.0787m + secondTrancheSalary * 0.2159m,
+        firstTrancheSalary * 0.0215m + secondTrancheSalary * 0.027m + (if annualSalary > pass then firstTrancheSalary + secondTrancheSalary else 0m) * 0.0035m
 
 // reference : https://www.agirc-arrco.fr/particuliers/prevoir-retraite/age-retraite-calcul/
 let calculateCurrentAgircArrcoPension career =
@@ -52,4 +52,4 @@ let calculatePension career =
         NetReplacementRate =
             // reference : https://www.previssima.fr/question-pratique/quelles-sont-les-cotisations-sociales-sur-les-pensions-de-retraite.html
             (pension.ComposedOf.[0].MonthlyAmount * 0.909m + pension.ComposedOf.[1].MonthlyAmount * 0.899m)
-                / (calculateNetSalary career.EndMonthWage) }
+                / (calculateNetSalary career.EndMonthSalary) }

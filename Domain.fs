@@ -5,8 +5,8 @@ type Career = {
     StartingAge: decimal
     RetiringAge: decimal
     NotValidatedQuarters: int
-    InitialMonthWage: decimal
-    EndMonthWage: decimal
+    InitialMonthSalary: decimal
+    EndMonthSalary: decimal
 }
 and Year = decimal
 type Pension =
@@ -42,8 +42,8 @@ let calculateNetSalary grossSalary =
     (annualSalary - cotisations) / 12m
 
 let calculateOneYearOf cotisationsFun career year =
-    let annualWage = 12m * (career.InitialMonthWage + (year - 1 |> decimal) * (career.EndMonthWage - career.InitialMonthWage) / (career.RetiringAge - career.StartingAge - 1m))
-    cotisationsFun annualWage
+    let annualSalary = 12m * (career.InitialMonthSalary + (year - 1 |> decimal) * (career.EndMonthSalary - career.InitialMonthSalary) / (career.RetiringAge - career.StartingAge - 1m))
+    cotisationsFun annualSalary
 
 let calculateWholeCareer (cotisationsFun: decimal -> decimal * decimal) career =
     [1..(career.RetiringAge - career.StartingAge |> int)]

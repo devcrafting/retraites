@@ -1,4 +1,4 @@
-module ReformedSalaries
+module Reformed
 
 open Domain
 
@@ -30,7 +30,7 @@ let calculateReformedPension career =
     let pension = points * 0.55m * pensionRate career / 12m
     { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension }
 
-let calculatePension career =
+let calculatePensionSalaries career =
     let pension = {
         ComposedOf = [ calculateReformedPension career ]
         NetReplacementRate = 0m
@@ -39,4 +39,4 @@ let calculatePension career =
         NetReplacementRate =
             // TODO : cotisation rate of retired people : 9.1% or 10.1% ?
             (pension.ComposedOf.[0].MonthlyAmount * 0.909m)
-                / (calculateNetSalary career.EndMonthWage) }
+                / (calculateNetSalary career.EndMonthSalary) }
