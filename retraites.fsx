@@ -16,7 +16,7 @@ let simulationBasedOn computePension linearSalaryIncrease bornIn =
 
 let simulationCurrentBasedOnSameWage = simulationBasedOn CurrentSalaries.calculatePension 0m
 
-let simulationCurrentBasedOnSameWageFixedBirthDate = simulationCurrentBasedOnSameWage 1961m
+let simulationCurrentBasedOnSameWageFixedBirthDate = simulationCurrentBasedOnSameWage 1980m
 
 let simulationReformedBasedOnSameWage = simulationBasedOn ReformedSalaries.calculatePension 0m
 
@@ -37,6 +37,7 @@ let cotisationsSeries = [
     "Cotisations régime de base", simulationCurrentBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].Cotisations)
     "Cotisations régime AGIRC/ARRCO", simulationCurrentBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].Cotisations)
     "Cotisations régime général actuel", simulationCurrentBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.TotalCotisations)
+    "Cotisations régime général réformé", simulationReformedBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.TotalCotisations)
 ]
 
 let monthlyPensionSeries = [
@@ -46,12 +47,12 @@ let monthlyPensionSeries = [
 ]
 
 let replacementRateSeries = [
-    "Taux de remplacement régime général actuel, né en 1961", simulationCurrentBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
-    "Taux de remplacement régime général actuel, né en 1980", simulationCurrentBasedOnSameWage 1980m |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
+    "Taux de remplacement régime général actuel, né en 1961", simulationCurrentBasedOnSameWage 1961m |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
+    "Taux de remplacement régime général actuel, né en 1980", simulationCurrentBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
     "Taux de remplacement régime général réformé, né en 1980", simulationReformedBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
 ]
 
-let labels, series = rateOfReturnSeries |> List.unzip
+let labels, series = cotisationsSeries |> List.unzip
 
 series
 |> Chart.Combo
