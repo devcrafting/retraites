@@ -44,11 +44,19 @@ let replacementRateSeries = [
     "Taux de remplacement régime général actuel, né en 1980", simulationBasedOnSameWage 1980m |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
 ]
 
-let labels, series = rateOfReturnSeries |> List.unzip
+let labels, series = replacementRateSeries |> List.unzip
 
 series
 |> Chart.Combo
 |> Chart.WithTitle ""
 |> Chart.WithXTitle "Salaire mensuel brut"
 |> Chart.WithLabels labels
+|> Chart.WithOptions(
+    Options(
+        vAxis = Axis(format = "percent"),
+        aggregationTarget = "category",
+        selectionMode = "multiple",
+        tooltip = Tooltip(trigger = "selection")))
+|> Chart.WithLegend true
+|> Chart.WithHeight 600
 |> Chart.Show
