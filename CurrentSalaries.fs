@@ -10,11 +10,11 @@ let requiredQuarters birthDate =
     172m - oneQuarterEvery3Years
 
 let calculateOneYearOf cotisationsFun career year =
-    let annualWage = 12m * (career.InitialMonthWage + (year - 1 |> decimal) * (career.EndMonthWage - career.InitialMonthWage) / (career.EndYear - career.StartYear - 1m))
+    let annualWage = 12m * (career.InitialMonthWage + (year - 1 |> decimal) * (career.EndMonthWage - career.InitialMonthWage) / (career.RetiringAge - career.StartingAge - 1m))
     cotisationsFun annualWage
 
 let calculateWholeCareer cotisationsFun career =
-    [1..(career.EndYear - career.StartYear |> int)]
+    [1..(career.RetiringAge - career.StartingAge |> int)]
         |> List.map (calculateOneYearOf cotisationsFun career)
         |> List.unzip
         |> fun (x, y) -> x |> List.sum, y |> List.sum
@@ -24,9 +24,9 @@ let cotisationsBase annualWage =
 
 // reference : https://www.service-public.fr/particuliers/vosdroits/F21552
 let calculateCurrentBasePension career =
-    let firstBest25YearsWage = career.InitialMonthWage + (career.EndYear - career.StartYear - 25m) * (career.EndMonthWage - career.InitialMonthWage) / (career.EndYear - career.StartYear)
+    let firstBest25YearsWage = career.InitialMonthWage + (career.RetiringAge - career.StartingAge - 25m) * (career.EndMonthWage - career.InitialMonthWage) / (career.RetiringAge - career.StartingAge)
     let averageBest25YearsWage = (firstBest25YearsWage + career.EndMonthWage) / 2m
-    let validatedQuarters = (career.EndYear - career.StartYear) * 4m
+    let validatedQuarters = (career.RetiringAge - career.StartingAge) * 4m
     let requiredQuarters = requiredQuarters career.BirthYear
     let missingQuarters = requiredQuarters - validatedQuarters |> min 20m
     let pensionRate = 0.5m - 0.00625m * missingQuarters
@@ -44,7 +44,7 @@ let cotisationsAgircArrco annualWage =
 let calculateCurrentAgircArrcoPension career =
     let cotisations, cotisationsWithoutPoints = calculateWholeCareer cotisationsAgircArrco career
     let points = cotisations / 1.27m / 17.3982m
-    let validatedQuarters = (career.EndYear - career.StartYear) * 4m
+    let validatedQuarters = (career.RetiringAge - career.StartingAge) * 4m
     let requiredQuarters = requiredQuarters career.BirthYear
     let missingQuarters = requiredQuarters - validatedQuarters |> min 20m
     let pensionRate = 1m - (min 12m missingQuarters) * 0.01m - (max 0m (missingQuarters - 12m)) * 0.0125m

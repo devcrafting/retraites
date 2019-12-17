@@ -2,8 +2,8 @@ module Domain
 
 type Career = {
     BirthYear: Year
-    StartYear: Year // Junuary 1st
-    EndYear: Year // Junuary 1st
+    StartingAge: decimal
+    RetiringAge: decimal
     NotValidatedQuarters: int
     InitialMonthWage: decimal
     EndMonthWage: decimal

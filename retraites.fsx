@@ -3,30 +3,45 @@
 
 open Domain
 
-let simulationBasedOnSameWage =
-    [500m..500m..25m * smic]
-    |> List.map (fun wage -> wage, CurrentSalaries.calculatePension { BirthYear = 1980m; StartYear = 2002m; EndYear = 2045m; NotValidatedQuarters = 0; InitialMonthWage = wage; EndMonthWage = wage;  })
+let casTypeD = { BirthYear = 1961m; StartingAge = 22m; RetiringAge = 64m; NotValidatedQuarters = 0; InitialMonthWage = 2_895m; EndMonthWage = 2_895m }
+let pension = CurrentSalaries.calculatePension casTypeD
+
+let simulationBasedOn linearSalaryIncrease bornIn =
+    let startingAge = 22m
+    let retiringAge = 64m
+    [500m..500m..25m * smic] @ [pass / 12m; 3m * pass / 12m; 8m * pass / 12m]
+    |> List.sortBy id
+    |> List.map (fun wage -> wage, CurrentSalaries.calculatePension { BirthYear = bornIn; StartingAge = startingAge; RetiringAge = retiringAge; NotValidatedQuarters = 0; InitialMonthWage = wage; EndMonthWage = wage + linearSalaryIncrease * (retiringAge - startingAge) })
+
+let simulationBasedOnSameWage = simulationBasedOn 0m
+
+let simulationBasedOnSameWageFixedBirthDate = simulationBasedOnSameWage 1961m
 
 #load ".paket/load/net472/XPlot.GoogleCharts.fsx" // to evaluate in FSI .NET 4.7.2
 //#load "../../.paket/load/netcoreapp2.2/XPlot.GoogleCharts.fsx" // not working in FSI, but necessary for autocomplete in IDE
 open XPlot.GoogleCharts
 
 let rateOfReturnSeries = [
-    "Taux de rendement régime de base", simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].RateOfReturn * 100m)
-    "Taux de rendement régime AGIRC/ARRCO", simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].RateOfReturn * 100m)
-    "Taux de rendement régime général actuel", simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.GlobalRateOfReturn * 100m)
+    "Taux de rendement régime de base", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].RateOfReturn)
+    "Taux de rendement régime AGIRC/ARRCO", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].RateOfReturn)
+    "Taux de rendement régime général actuel", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.GlobalRateOfReturn)
 ]
 
 let cotisationsSeries = [
-    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].Cotisations)
-    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].Cotisations)
-    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.TotalCotisations)
+    "Cotisations régime de base", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].Cotisations)
+    "Cotisations régime AGIRC/ARRCO", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].Cotisations)
+    "Cotisations régime général actuel", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.TotalCotisations)
 ]
 
 let monthlyPensionSeries = [
-    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].MonthlyAmount)
-    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].MonthlyAmount)
-    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.TotalMonthlyAmount)
+    "Retraite régime de base", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].MonthlyAmount)
+    "Retraite régime AGIRC/ARRCO", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].MonthlyAmount)
+    "Retraite régime général actuel", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.TotalMonthlyAmount)
+]
+
+let replacementRateSeries = [
+    "Taux de remplacement régime général actuel, né en 1961", simulationBasedOnSameWageFixedBirthDate |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
+    "Taux de remplacement régime général actuel, né en 1980", simulationBasedOnSameWage 1980m |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
 ]
 
 let labels, series = rateOfReturnSeries |> List.unzip
