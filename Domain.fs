@@ -12,7 +12,7 @@ and Year = decimal
 type Pension =
     {
         ComposedOf: SubPension list
-        ReplacementRate: decimal
+        NetReplacementRate: decimal
     } with
     member this.TotalCotisations = this.ComposedOf |> List.sumBy (fun x -> x.Cotisations)
     member this.TotalMonthlyAmount = this.ComposedOf |> List.sumBy (fun x -> x.MonthlyAmount)

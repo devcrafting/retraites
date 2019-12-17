@@ -53,9 +53,23 @@ let calculateCurrentAgircArrcoPension career =
     let pension = points * 1.2714m * pensionRate / 12m
     { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension }
 
+// reference : https://www.efl.fr/chiffres-taux/social/salaire/taux_cot.html
+let calculateNetSalary grossSalary =
+    let annualSalary = grossSalary * 12m
+    let tranche1 = min annualSalary pass
+    let tranche2 = max 0m (min annualSalary (8m * pass) - pass)
+    let cotisations =
+        annualSalary * (0.004m + 0.9825m * (0.068m + 0.024m + 0.005m))
+        + tranche1 * (0.069m + 0.0315m + 0.0086m + 0.0014m)
+        + tranche2 * (0.0864m + 0.0108m + 0.0014m)
+    (annualSalary - cotisations) / 12m
+
 let calculatePension career =
     let pension = {
         ComposedOf = [ calculateCurrentBasePension career; calculateCurrentAgircArrcoPension career ]
-        ReplacementRate = 0m
+        NetReplacementRate = 0m
     }
-    { pension with ReplacementRate = pension.TotalMonthlyAmount / career.EndMonthWage }
+    { pension with
+        NetReplacementRate =
+            (pension.ComposedOf.[0].MonthlyAmount * 0.909m + pension.ComposedOf.[1].MonthlyAmount * 0.899m)
+                / (calculateNetSalary career.EndMonthWage) }
