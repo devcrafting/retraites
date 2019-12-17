@@ -83,6 +83,44 @@ let calculateCurrentPension career =
 
 let calculateExpectedPension career = 0m
 
-let career = { BirthYear = 1981m; StartYear = 2003m; EndYear = 2046m; NotValidatedQuarters = 0; InitialMonthWage = 1394m; EndMonthWage = 2895m }
+// let career = { BirthYear = 1981m; StartYear = 2003m; EndYear = 2046m; NotValidatedQuarters = 0; InitialMonthWage = 1394m; EndMonthWage = 2895m }
+let career = { BirthYear = 1981m; StartYear = 2003m; EndYear = 2046m; NotValidatedQuarters = 0; InitialMonthWage = 3000m; EndMonthWage = 3000m }
 
 calculateCurrentPension career
+
+let simulationBasedOnSameWage =
+    [500m..500m..25m * smic]
+    |> List.map (fun wage -> wage, calculateCurrentPension { BirthYear = 1980m; StartYear = 2002m; EndYear = 2045m; NotValidatedQuarters = 0; InitialMonthWage = wage; EndMonthWage = wage;  })
+
+#load ".paket/load/net472/XPlot.GoogleCharts.fsx" // to evaluate in FSI .NET 4.7.2
+//#load "../../.paket/load/netcoreapp2.2/XPlot.GoogleCharts.fsx" // not working in FSI, but necessary for autocomplete in IDE
+open XPlot.GoogleCharts
+
+let rateOfReturnSeries = [
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].RateOfReturn * 100m)
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].RateOfReturn * 100m)
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.GlobalRateOfReturn * 100m)
+]
+
+let cotisationsSeries = [
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].Cotisations)
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].Cotisations)
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.TotalCotisations)
+]
+
+let monthlyPensionSeries = [
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[0].MonthlyAmount)
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.ComposedOf.[1].MonthlyAmount)
+    simulationBasedOnSameWage |> Seq.map (fun (x, y) -> x, y.TotalMonthlyAmount)
+]
+
+rateOfReturnSeries
+|> Chart.Combo
+|> Chart.WithTitle ""
+|> Chart.WithXTitle "Salaire mensuel brut"
+|> Chart.WithLabels [
+    "Taux de rendement régime de base"
+    "Taux de rendement régime AGIRC/ARRCO"
+    "Taux de rendement régime général actuel"
+]
+|> Chart.Show
