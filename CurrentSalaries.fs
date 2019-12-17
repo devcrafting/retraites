@@ -2,7 +2,12 @@ module CurrentSalaries
 
 open Domain
 
-let requiredQuarters birthDate = 172m // TODO : less for before than 1973
+let requiredQuarters birthDate =
+    let oneQuarterEvery3Years =
+        if birthDate < 1953m then failwith "not supported"
+        if birthDate >= 1973m then 0m else
+        (1972 - int birthDate) / 3 + 1 |> decimal
+    172m - oneQuarterEvery3Years
 
 let calculateOneYearOf cotisationsFun career year =
     let annualWage = 12m * (career.InitialMonthWage + (year - 1 |> decimal) * (career.EndMonthWage - career.InitialMonthWage) / (career.EndYear - career.StartYear - 1m))
