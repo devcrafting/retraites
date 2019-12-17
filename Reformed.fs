@@ -27,6 +27,7 @@ let pensionRate career =
 let calculateReformedPension career =
     let cotisations, cotisationsWithoutPoints = calculateWholeCareer cotisationsReform career
     let points = cotisations / 10m
+    // TODO : take in account minimum pension
     let pension = points * 0.55m * pensionRate career / 12m
     { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension }
 

@@ -20,6 +20,7 @@ let calculateCurrentBasePension career =
     let requiredQuarters = requiredQuarters career.BirthYear
     let missingQuarters = requiredQuarters - validatedQuarters |> min 20m
     let pensionRate = 0.5m - 0.00625m * missingQuarters
+    // TODO : take in account minimum pension
     let pension = (min (averageBest25YearsSalary) (pass / 12m)) * pensionRate * validatedQuarters / requiredQuarters
     let cotisations, _ = calculateWholeCareer cotisationsBase career
     { Cotisations = cotisations; MonthlyAmount = pension }
