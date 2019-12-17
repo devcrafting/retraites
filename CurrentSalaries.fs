@@ -9,16 +9,6 @@ let requiredQuarters birthDate =
         (1972 - int birthDate) / 3 + 1 |> decimal
     172m - oneQuarterEvery3Years
 
-let calculateOneYearOf cotisationsFun career year =
-    let annualWage = 12m * (career.InitialMonthWage + (year - 1 |> decimal) * (career.EndMonthWage - career.InitialMonthWage) / (career.RetiringAge - career.StartingAge - 1m))
-    cotisationsFun annualWage
-
-let calculateWholeCareer cotisationsFun career =
-    [1..(career.RetiringAge - career.StartingAge |> int)]
-        |> List.map (calculateOneYearOf cotisationsFun career)
-        |> List.unzip
-        |> fun (x, y) -> x |> List.sum, y |> List.sum
-
 let cotisationsBase annualWage =
     (min annualWage pass) * 0.1545m + annualWage * 0.023m, 0m
 
@@ -53,17 +43,6 @@ let calculateCurrentAgircArrcoPension career =
     let pension = points * 1.2714m * pensionRate / 12m
     { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension }
 
-// reference : https://www.efl.fr/chiffres-taux/social/salaire/taux_cot.html
-let calculateNetSalary grossSalary =
-    let annualSalary = grossSalary * 12m
-    let tranche1 = min annualSalary pass
-    let tranche2 = max 0m (min annualSalary (8m * pass) - pass)
-    let cotisations =
-        annualSalary * (0.004m + 0.9825m * (0.068m + 0.024m + 0.005m))
-        + tranche1 * (0.069m + 0.0315m + 0.0086m + 0.0014m)
-        + tranche2 * (0.0864m + 0.0108m + 0.0014m)
-    (annualSalary - cotisations) / 12m
-
 let calculatePension career =
     let pension = {
         ComposedOf = [ calculateCurrentBasePension career; calculateCurrentAgircArrcoPension career ]
@@ -71,5 +50,6 @@ let calculatePension career =
     }
     { pension with
         NetReplacementRate =
+            // reference : https://www.previssima.fr/question-pratique/quelles-sont-les-cotisations-sociales-sur-les-pensions-de-retraite.html
             (pension.ComposedOf.[0].MonthlyAmount * 0.909m + pension.ComposedOf.[1].MonthlyAmount * 0.899m)
                 / (calculateNetSalary career.EndMonthWage) }
