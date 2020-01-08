@@ -50,3 +50,10 @@ let calculateWholeCareer (cotisationsFun: decimal -> decimal * decimal) career =
     |> List.map (calculateOneYearOf cotisationsFun career)
     |> List.unzip
     |> fun (x, y) -> x |> List.sum, y |> List.sum
+
+let requiredQuarters birthDate =
+    let oneQuarterEvery3Years =
+        if birthDate < 1953m then failwith "not supported"
+        if birthDate >= 1973m then 0m else
+        (1972 - int birthDate) / 3 + 1 |> decimal
+    172m - oneQuarterEvery3Years

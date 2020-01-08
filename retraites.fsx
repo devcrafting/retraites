@@ -1,4 +1,5 @@
 #load "Domain.fs"
+#load "CurrentRegimeGeneralDeBase.fs"
 #load "CurrentSalaries.fs"
 #load "Reformed.fs"
 
@@ -56,15 +57,18 @@ let labels, series = cotisationsSeries |> List.unzip
 
 series
 |> Chart.Combo
-|> Chart.WithTitle ""
-|> Chart.WithXTitle "Salaire mensuel brut"
-|> Chart.WithLabels labels
 |> Chart.WithOptions(
     Options(
         vAxis = Axis(format = "percent"),
+        // vAxis = Axis(format = "#,###€"),
+        hAxis = Axis(viewWindow = ViewWindow(max = 25000)),
         aggregationTarget = "category",
         selectionMode = "multiple",
         tooltip = Tooltip(trigger = "selection")))
+|> Chart.WithTitle title
+|> Chart.WithLabels labels
+//|> Chart.WithXTitle "Salaire mensuel brut"
+|> Chart.WithXTitle "Revenu (DSI) mensualisé"
 |> Chart.WithLegend true
 |> Chart.WithHeight 600
 |> Chart.Show
