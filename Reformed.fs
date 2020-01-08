@@ -41,3 +41,18 @@ let calculatePensionSalaries career =
         NetReplacementRate =
             pension.TotalMonthlyAmount
                 / (calculateNetSalary career.EndMonthSalary) }
+
+let cotisationsNonSalariesReform annualRevenue =
+    let upTo1Pass = min (1m * pass) annualRevenue
+    let from1PassTo3Pass = min (3m * pass) (max (annualRevenue - pass) 0m)
+    upTo1Pass * 0.2531m + from1PassTo3Pass * 0.1013m, annualRevenue * 0.0281m
+
+let calculatePensionNonSalaries career =
+    let pension = {
+        ComposedOf = [ calculateReformedPension cotisationsNonSalariesReform career ]
+        NetReplacementRate = 0m
+    }
+    { pension with
+        NetReplacementRate =
+            pension.TotalMonthlyAmount
+                / career.EndMonthSalary } // salary for TNS is already net
