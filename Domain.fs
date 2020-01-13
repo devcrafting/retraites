@@ -16,12 +16,16 @@ type Pension =
     } with
     member this.TotalCotisations = this.ComposedOf |> List.sumBy (fun x -> x.Cotisations)
     member this.TotalMonthlyAmount = this.ComposedOf |> List.sumBy (fun x -> x.MonthlyAmount)
+    member this.TotalMonthlyNetAmount = this.ComposedOf |> List.sumBy (fun x -> x.MonthlyNetAmount)
     member this.GlobalRateOfReturn = this.TotalMonthlyAmount * 12m / this.TotalCotisations
 and SubPension =
     {
         Cotisations: decimal
         MonthlyAmount: decimal
     } with
+    // reference : https://www.previssima.fr/question-pratique/quelles-sont-les-cotisations-sociales-sur-les-pensions-de-retraite.html
+    // TODO : cotisation rate of retired people : 9.1% or 10.1% ?
+    member this.MonthlyNetAmount = this.MonthlyAmount * 0.909m
     member this.RateOfReturn = this.MonthlyAmount * 12m / this.Cotisations
     static member (+) (a: SubPension, b: SubPension) =
         { Cotisations = a.Cotisations + b.Cotisations; MonthlyAmount = a.MonthlyAmount + b.MonthlyAmount }

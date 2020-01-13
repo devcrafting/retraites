@@ -25,8 +25,7 @@ let calculateReformedPension cotisationsFun career =
     let points = cotisations / 10m
     // TODO : take in account minimum pension
     let pension = points * 0.55m * pensionRate career / 12m
-    // TODO : cotisation rate of retired people : 9.1% or 10.1% ?
-    { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension * 0.909m }
+    { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension }
 
 let cotisationsSalariesReform annualSalary =
     let upTo3Pass = min (3m * pass) annualSalary
@@ -39,7 +38,7 @@ let calculatePensionSalaries career =
     }
     { pension with
         NetReplacementRate =
-            pension.TotalMonthlyAmount
+            pension.TotalMonthlyNetAmount
                 / (calculateNetSalary career.EndMonthSalary) }
 
 let cotisationsNonSalariesReform annualRevenue =
@@ -53,6 +52,5 @@ let calculatePensionNonSalaries career =
         NetReplacementRate = 0m
     }
     { pension with
-        NetReplacementRate =
-            pension.TotalMonthlyAmount
-                / career.EndMonthSalary } // salary for TNS is already net
+        NetReplacementRate = // NB: salary for TNS is already net
+            pension.TotalMonthlyNetAmount / career.EndMonthSalary }

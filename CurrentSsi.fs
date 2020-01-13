@@ -37,6 +37,4 @@ let calculatePension career =
     }
     { pension with
         NetReplacementRate =
-            // reference : https://www.previssima.fr/question-pratique/quelles-sont-les-cotisations-sociales-sur-les-pensions-de-retraite.html
-            pension.TotalMonthlyAmount * 0.909m
-                / career.EndMonthSalary }
+            pension.TotalMonthlyNetAmount / career.EndMonthSalary }
