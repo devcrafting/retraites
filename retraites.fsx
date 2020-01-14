@@ -97,23 +97,25 @@ let replacementRateSeriesPercentIncrease = sprintf "Taux de remplacement selon l
         ("Régime CIPAV actuel", ""), simulationCurrentCipavBasedOnPercentSalaryIncreaseBirthDate percentIncrease |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
     ]
 
-let ecartSsiReforme percentIncrease =
+let ecartActuelReforme percentIncrease =
     Seq.zip
-        (simulationReformedNonSalariesBasedOnPercentSalaryIncreaseFixedBirthDate percentIncrease)
-        (simulationCurrentSsiBasedOnPercentSalaryIncreaseBirthDate percentIncrease)
+        (simulationReformedSalariesBasedOnPercentSalaryIncreaseFixedBirthDate percentIncrease)
+        (simulationCurrentBasedOnPercentSalaryIncreaseFixedBirthDate percentIncrease)
+        // (simulationReformedNonSalariesBasedOnPercentSalaryIncreaseFixedBirthDate percentIncrease)
+        // (simulationCurrentSsiBasedOnPercentSalaryIncreaseBirthDate percentIncrease)
     |> Seq.map (fun ((x1, y1), (x2, y2)) -> x1, y1.NetReplacementRate - y2.NetReplacementRate)
-let replacementRateDiffSeriesDifferentPercentIncrease = "Baisse du taux de remplacement entre SSI et réforme selon les revenus sur toute une carrière (revenus ayant augmenté linéairement du pourcentage indiqué pour la courbe)", [
-    // "Taux de remplacement régime général actuel, né en 1961", simulationCurrentBasedOnSameSalary 1961m |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
-    // "Régime général actuel, né en 1980", simulationCurrentBasedOnSameSalaryFixedBirthDate |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
-    // "Régime général réformé, né en 1980", simulationReformedSalariesBasedOnSameSalaryFixedBirthDate |> Seq.map (fun (x, y) -> x, y.NetReplacementRate)
-    ("fixe", "#E2A9F3"), ecartSsiReforme 0m
-    ("+50%", "#D358F7"), ecartSsiReforme 50m
-    ("+100%", "#BF00FF"), ecartSsiReforme 100m
-    ("+200%", "#6A0888"), ecartSsiReforme 200m
-]
+let replacementRateDiffSeriesDifferentPercentIncrease =
+    "Baisse du taux de remplacement entre SSI et réforme selon les revenus sur toute une carrière (revenus ayant augmenté linéairement du pourcentage indiqué pour la courbe)",
+    "percent",
+    [
+        ("fixe", "#E2A9F3"), ecartActuelReforme 0m
+        ("+50%", "#D358F7"), ecartActuelReforme 50m
+        ("+100%", "#BF00FF"), ecartActuelReforme 100m
+        ("+200%", "#6A0888"), ecartActuelReforme 200m
+    ]
 
 let title, vAxisFormat, labels, seriesOptions, series =
-    monthlyPensionSeries
+    replacementRateDiffSeriesDifferentPercentIncrease
     |> fun (title, vAxisFormat, seriesDef) ->
         let (labelsAndSeriesOptions, series) = seriesDef |> List.unzip
         let (labels, seriesOptions) = labelsAndSeriesOptions |> List.unzip
