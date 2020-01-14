@@ -62,3 +62,18 @@ C'est en fait exactement la même formule que le régime AGIRC/ARRCO mais avec d
 - majoration/minoration selon âge/trimestres : l'âge pivot/d'équilibre (tant discuté - à 64 ans) limite la décote à 10% en partant à 62 ans, et permet une surcote de 5% par an dès 65 ans
 - cotisations : un taux unique pour tous jusqu'à 3 PASS, un taux déplafonné ne rapportant pas de points à 2.81%, la somme des 2 taux induisant les mêmes cotisations que dans le système actuel jusqu'à 3 PASS, mais seulement 2.8% entre 3 PASS et 8 PASS
 - minimum retraite net à 85% du SMIC net pour une carrière complète (basée sur 43 annuités = 172 trimestres)
+
+## Comparaison
+
+Pour comparer les régimes de retraites, plusieurs indicateurs peuvent être utilisés et l'objectif est d'éviter de ne montrer que celui qui ne fait dire que ce qu'on veut.
+
+### Taux de rendement
+
+Il est assez simple de comparer le régime réformé et le régime complémentaire AGIRC/ARRCO puisqu'ils ont des fonctions semblables, il suffit de comparer les paramètres :
+
+- pour comparer les valeurs de points, on utilise le `taux de rendement = valeur de service du point / valeur d'achat du point`, ou aussi à partir de la formule `taux de rendement = retraite annuelle / cotisations totales rapportant des points`, ce qui donne les valeurs types de 5.5% pour la réforme **versus** 5.75% pour l'AGIRC/ARRCO (il faut tenir compte du ratio de 127% pour être équivalent)
+- cependant, ce taux de rendement est "brut" car il ne tient pas compte des cotisations qui ne donnent pas de points, mais qui emputent le `taux de rendement net = retraite annuelle / cotisations totales (y compris celles ne rapportant pas de points)`, dans ce cas, le taux de rendement tombe à 4.95% pour la réforme **versus** 4.52% pour l'AGIRC/ARRCO uniquement en dessous du PASS, le taux AGIRC/ARRCO remontant jusqu'à 5% à 8 PASS, alors que le taux de la réforme baisse dès 3 PASS. Pour 3 PASS, l'AGIRC/ARRCO est à 4.92% soit quasiment équivalent à la réforme.
+
+Elargissons la comparaison au régime général dans son ensemble, en comparant le taux de rendement global. Avec la formule élargie du taux de rendement net ci-dessus, nous pouvons calculer le taux de rendement du régime de base actuel, bien qu'il dépende alors beaucoup de la variation de revenus sur l'ensemble de la carrière (en raison de la régle des 25 meilleures années). Voici une première comparaison des régimes actuels et prévus pour des revenus fixes :
+
+![Taux de rendement selon les revenus mensuels bruts par régime](taux-de-rendement-par-regime.png)
