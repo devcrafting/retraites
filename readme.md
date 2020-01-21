@@ -19,3 +19,9 @@ Voici les différents sujets qu'on peut analyser ou non avec ce simulateur :
 - [Pénibilité]() : ce n'est pas pris en compte pour le moment
 - [Retraite minimum]() : ce n'est pas pris en compte pour le moment
 - [Enfants]() : ce n'est pas pris en compte pour le moment
+
+## Lancer les simulations soi-même
+
+Le code est en F#, les prérequis sont [ceux décrits ici (cliquer sur Use et choisissez votre plateforme)](https://fsharp.org/).
+
+Le F# ayant un mode script (REPL appelé FSI pour FSharp Interactive), le point d'entrée est le script `retraites.fsx`. Depuis l'IDE (VSCode + Ionide par ex) que vous avez choisi, il suffit de sélectionner les lignes à envoyer dans FSI pour les exécuter (on peut aussi exécuter le script via la ligne de commande `fsi retraites.fsx`). Le script contient les appels aux fonctions de calcul définies dans les différents fichier `.fs`, ainsi que la mise en forme de graphique Google Charts (via XPlot).
