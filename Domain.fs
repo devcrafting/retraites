@@ -1,5 +1,9 @@
 module Domain
 
+// reference : https://www.previssima.fr/question-pratique/quelles-sont-les-cotisations-sociales-sur-les-pensions-de-retraite.html
+// TODO : cotisation rate of retired people : 9.1% or 10.1% ?
+let netRatioOnPensionBrute = 0.909m
+
 type Career = {
     BirthYear: Year
     StartingAge: decimal
@@ -23,16 +27,16 @@ and SubPension =
         Cotisations: decimal
         MonthlyAmount: decimal
     } with
-    // reference : https://www.previssima.fr/question-pratique/quelles-sont-les-cotisations-sociales-sur-les-pensions-de-retraite.html
-    // TODO : cotisation rate of retired people : 9.1% or 10.1% ?
-    member this.MonthlyNetAmount = this.MonthlyAmount * 0.909m
+    member this.MonthlyNetAmount = this.MonthlyAmount * netRatioOnPensionBrute
     member this.RateOfReturn = this.MonthlyAmount * 12m / this.Cotisations
     static member (+) (a: SubPension, b: SubPension) =
         { Cotisations = a.Cotisations + b.Cotisations; MonthlyAmount = a.MonthlyAmount + b.MonthlyAmount }
     static member Zero = { Cotisations = 0m; MonthlyAmount = 0m }
 
-let pass = 40_000m
-let smic = 1_521.22m
+let pass = 41_136m
+let smic = 1_539.42m
+let smicMensuelNet = 1_185.35m
+let smicHoraireBrut = 10.15m
 
 // reference : https://www.efl.fr/chiffres-taux/social/salaire/taux_cot.html
 let calculateNetSalary grossSalary =
@@ -45,9 +49,12 @@ let calculateNetSalary grossSalary =
         + tranche2 * (0.0864m + 0.0108m + 0.0014m)
     (annualSalary - cotisations) / 12m
 
+let annualSalary career year =
+    12m * (career.InitialMonthSalary + (year - 1 |> decimal) * (career.EndMonthSalary - career.InitialMonthSalary) / (career.RetiringAge - career.StartingAge - 1m))
+
 let calculateOneYearOf cotisationsFun career year =
-    let annualSalary = 12m * (career.InitialMonthSalary + (year - 1 |> decimal) * (career.EndMonthSalary - career.InitialMonthSalary) / (career.RetiringAge - career.StartingAge - 1m))
-    cotisationsFun annualSalary
+    annualSalary career year
+    |> cotisationsFun
 
 let calculateWholeCareer (cotisationsFun: decimal -> decimal * decimal) career =
     [1..(career.RetiringAge - career.StartingAge |> int)]

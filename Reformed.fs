@@ -20,12 +20,32 @@ let pensionRate career =
         else max legalRetirementAge career.RetiringAge
     1m + (fullPensionRateAge - defaultFullPensionRateAge) * increaseDecreaseRatePerYear
 
+
+let private validatedQuartersForYear career year =
+    // simplified model
+    let quartersNumber = (annualSalary career year) / (50m * smicHoraireBrut)
+    quartersNumber
+    |> System.Math.Floor
+    |> min 12m // no more than 12 months validated
+
+let private ratioFullCareer career =
+    let validatedQuarters =
+        [1..(career.RetiringAge - career.StartingAge |> int)]
+        |> List.sumBy (validatedQuartersForYear career)
+    validatedQuarters / (3m * requiredQuarters career.BirthYear)
+
+let calculateMinimalPension career =
+    let ratio = ratioFullCareer career
+    printfn "%f" ratio
+    smicMensuelNet * 0.85m / netRatioOnPensionBrute * ratio
+
 let calculateReformedPension cotisationsFun career =
+    let minimalPension = calculateMinimalPension career
     let cotisations, cotisationsWithoutPoints = calculateWholeCareer cotisationsFun career
     let points = cotisations / 10m
-    // TODO : take in account minimum pension
     let pension = points * 0.55m * pensionRate career / 12m
-    { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension }
+    printfn "%f - %f" pension minimalPension
+    { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = max pension minimalPension }
 
 let cotisationsSalariesReform annualSalary =
     let upTo3Pass = min (3m * pass) annualSalary

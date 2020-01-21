@@ -26,13 +26,23 @@ let calculateCurrentAgircArrcoPension career =
     let pension = points * 1.2714m * pensionRate / 12m
     { Cotisations = cotisations + cotisationsWithoutPoints; MonthlyAmount = pension }
 
+// TODO : less than 120 quarters validated => lower minimum contributif
+let minimumContributifMajore = 702.55m
+let plafondMinimumContributif = 1_191.57m
+
 let calculatePension career =
-    let pension = {
-        ComposedOf = [ calculateCurrentBasePension cotisationsBase career; calculateCurrentAgircArrcoPension career ]
-        NetReplacementRate = 0m
-    }
-    { pension with
+    let pensionBase = calculateCurrentBasePension cotisationsBase career
+    let pensionComplementaire = calculateCurrentAgircArrcoPension career
+    let pensionBase =
+        if minimumContributifMajore > pensionBase.MonthlyAmount then
+            let totalPension = min (minimumContributifMajore + pensionComplementaire.MonthlyAmount) plafondMinimumContributif
+            { pensionBase with MonthlyAmount = totalPension - pensionComplementaire.MonthlyAmount }
+        else
+            pensionBase
+    {
+        ComposedOf = [ pensionBase; pensionComplementaire ]
         NetReplacementRate =
             // reference : https://www.previssima.fr/question-pratique/quelles-sont-les-cotisations-sociales-sur-les-pensions-de-retraite.html
-            (pension.ComposedOf.[0].MonthlyAmount * 0.909m + pension.ComposedOf.[1].MonthlyAmount * 0.899m)
-                / (calculateNetSalary career.EndMonthSalary) }
+            (pensionBase.MonthlyAmount * 0.909m + pensionComplementaire.MonthlyAmount * 0.899m)
+                / (calculateNetSalary career.EndMonthSalary)
+    }

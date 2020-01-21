@@ -10,10 +10,14 @@ open Domain
 let casTypeD = { BirthYear = 1961m; StartingAge = 22m; RetiringAge = 64m; NotValidatedQuarters = 0; InitialMonthSalary = 2_895m; EndMonthSalary = 2_895m }
 let pension = CurrentSalaries.calculatePension casTypeD
 
+let smic = { BirthYear = 1980m; StartingAge = 22m; RetiringAge = 64m; NotValidatedQuarters = 0; InitialMonthSalary = 600m * smicHoraireBrut / 12m; EndMonthSalary = 600m * smicHoraireBrut / 12m }
+CurrentSalaries.calculatePension smic
+Reformed.calculatePensionSalaries smic
+
 let simulationBasedOn computePension percentSalaryIncreaseBetweenStartAndRetirement bornIn =
     let startingAge = 22m
     let retiringAge = 64m
-    [500m..500m..25m * smic] @ [pass / 12m; 3m * pass / 12m; 4m * pass / 12m; 8m * pass / 12m]
+    [100m..50m..25m * smic] @ [pass / 12m; 3m * pass / 12m; 4m * pass / 12m; 8m * pass / 12m]
     |> List.sortBy id
     |> List.map (fun salary -> salary, computePension { BirthYear = bornIn; StartingAge = startingAge; RetiringAge = retiringAge; NotValidatedQuarters = 0; InitialMonthSalary = salary; EndMonthSalary = salary * (1m + percentSalaryIncreaseBetweenStartAndRetirement / 100m) })
 

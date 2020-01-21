@@ -9,8 +9,8 @@ let calculateCurrentBasePension cotisationsFun career =
     let validatedQuarters = (career.RetiringAge - career.StartingAge) * 4m
     let requiredQuarters = requiredQuarters career.BirthYear
     let missingQuarters = requiredQuarters - validatedQuarters |> min 20m
+    // TODO : surcote https://www.la-retraite-en-clair.fr/depart-retraite-age-montant/calculer-retraite/faut-savoir-surcote
     let pensionRate = 0.5m - 0.00625m * missingQuarters
-    // TODO : take in account minimum pension
     let pension = (min (averageBest25YearsSalary) (pass / 12m)) * pensionRate * validatedQuarters / requiredQuarters
     let cotisations, _ = calculateWholeCareer cotisationsFun career
     { Cotisations = cotisations; MonthlyAmount = pension }
